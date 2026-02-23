@@ -1,18 +1,29 @@
 name: Build_NightCaller_SO
-on: [push]
+
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+
       - name: Setup NDK
         uses: nttld/setup-ndk@v1
         with:
           ndk-version: r21e
+
       - name: Build Library
         run: ndk-build NDK_PROJECT_PATH=. APP_BUILD_SCRIPT=Android.mk
+
       - name: Upload Result
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: NightCaller_SO_Library
           path: libs/
