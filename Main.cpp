@@ -2,42 +2,56 @@
 #include <string>
 #include <vector>
 
-// ==========================================
-// 1. ЗМІННІ СТАНУ (Налаштування меню)
-// Тут зберігаються значення твоїх повзунків і кнопок
-// ==========================================
-
-// Налаштування [ AIMBOT ]
-bool aim_instant = false;
+// --- ЗМІННІ ДЛЯ ЗБЕРЕЖЕННЯ НАЛАШТУВАНЬ ---
+bool aim_lock = false;
 bool no_recoil = false;
-int aim_fov = 30;         // Радіус захвату: від 30 до 180
-int aim_target = 0;       // 0 - Голова, 1 - Шия
+int aim_fov = 30;
+int aim_target = 0; // 0-Head, 1-Neck
 
-// Налаштування [ VISUALS ]
 bool esp_box = false;
 bool esp_line = false;
 bool esp_hp = false;
-bool esp_dist_limit = false; // Обмеження дистанції (150м)
-
-
-// ==========================================
-// 2. ІНТЕРФЕЙС МЕНЮ (JNI Bridge)
-// Зв'язок твоєї панелі з цим C++ кодом
-// ==========================================
+bool esp_dist_limit = false;
 
 extern "C" {
 
-// Функція, яка передає список кнопок у твою панель
+// 1. ПЕРЕДАЧА СПИСКУ ФУНКЦІЙ У МЕНЮ
 JNIEXPORT jobjectArray JNICALL
 Java_com_soft_panel_GetFeatureList(JNIEnv *env, jobject context) {
     const char *features[] = {
-        // --- Вкладка AIMBOT ---
         "Category_[ AIMBOT ]",
         "Toggle_Aim Lock (0.1ms)",
         "Toggle_No Recoil",
         "SeekBar_FOV Radius_30_180",
         "SeekBar_Target (0-Head/1-Neck)_0_1",
-
-        // --- Вкладка VISUALS ---
+        
         "Category_[ VISUALS ]",
         "Toggle_ESP Box",
+        "Toggle_ESP Line",
+        "Toggle_ESP Health",
+        "Toggle_Limit Distance (150m)"
+    };
+
+    int rowCount = sizeof(features) / sizeof(features[0]);
+    jclass stringClass = env->FindClass("java/lang/String");
+    jobjectArray jfeatures = env->NewObjectArray(rowCount, stringClass, env->NewStringUTF(""));
+
+    for (int i = 0; i < rowCount; i++) {
+        env->SetObjectArrayElement(jfeatures, i, env->NewStringUTF(features[i]));
+    }
+    return jfeatures;
+}
+
+// 2. ОБРОБКА КНОПОК
+JNIEXPORT void JNICALL
+Java_com_soft_panel_OnFeatureClick(JNIEnv *env, jobject context, jint featureNum, jboolean isActive) {
+    // Тут буде логіка активації функцій у майбутньому
+}
+
+// 3. ОБРОБКА ПОВЗУНКІВ
+JNIEXPORT void JNICALL
+Java_com_soft_panel_OnSeekBarChange(JNIEnv *env, jobject context, jint featureNum, jint value) {
+    // Тут буде зміна значень FOV та дистанції
+}
+
+} // Кінець коду
